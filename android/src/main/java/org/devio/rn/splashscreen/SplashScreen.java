@@ -2,9 +2,17 @@ package org.devio.rn.splashscreen;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
+import android.graphics.Point;
 import android.os.Build;
+import android.util.Log;
+import android.view.Display;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 
 /**
  * SplashScreen
@@ -30,14 +38,46 @@ public class SplashScreen {
                 if (!activity.isFinishing()) {
                     mSplashDialog = new Dialog(activity, themeResId);
                     mSplashDialog.setContentView(R.layout.launch_screen);
+                    ViewGroup vb = (ViewGroup) mSplashDialog.getWindow().getDecorView();
+
+
+                    ImageView splashScreen = vb.findViewWithTag("splash_screen");
+
+                    int[] screenSize = getScreenSize(mSplashDialog.getContext());
                     mSplashDialog.setCancelable(false);
 
                     if (!mSplashDialog.isShowing()) {
                         mSplashDialog.show();
                     }
+                    int width = splashScreen.getDrawable().getIntrinsicWidth();
+                    int height = splashScreen.getDrawable().getIntrinsicHeight();
+                    Log.d("info", "宽度为:" + width);
+                    Log.d("info", splashScreen.toString());
+                    Log.d("info", "高度为:" + height);
+                    Log.d("info", splashScreen.toString());
+
+                    ViewGroup.LayoutParams splashParams = splashScreen.getLayoutParams();
+                    splashParams.width = screenSize[0];
+                    splashParams.height = (height*screenSize[0])/width;
+                    Log.d("info", "宽度为:" + splashParams.width);
+                    Log.d("info", "高度为:" + splashParams.height);
+                    splashScreen.setLayoutParams(splashParams);
                 }
             }
         });
+    }
+
+    public static int[] getScreenSize(Context context){
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display defaultDisplay = windowManager.getDefaultDisplay();
+        Point point = new Point();
+        defaultDisplay.getSize(point);
+        int x = point.x;
+        int y = point.y;
+        int[] size = new int[2];
+        size[0] = x;
+        size[1] = y;
+        return size;
     }
 
     /**
